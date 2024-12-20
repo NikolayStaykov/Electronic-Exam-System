@@ -1,5 +1,7 @@
 package org.tu.varna.resources;
 
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import org.tu.varna.objects.Discipline;
@@ -16,12 +18,14 @@ public class QuestionsResource {
     QuestionService questionService;
 
     @PUT
+    @RolesAllowed({"Teacher", "Admin"})
     public String createQuestion(Question requestBody) {
         questionService.createQuestion(requestBody);
         return "Question created";
     }
 
     @POST
+    @RolesAllowed({"Teacher", "Admin"})
     @Path("/{questionId}")
     public String updateQuestion(@PathParam("questionId") Long questionId, Question requestBody) {
         if(questionId != requestBody.getId())
@@ -33,12 +37,14 @@ public class QuestionsResource {
     }
 
     @GET
+    @RolesAllowed({"Teacher", "Admin", "Student"})
     @Path("/{questionId}")
     public Question getQuestion(@PathParam("questionId") Long questionId) {
         return questionService.getQuestion(questionId);
     }
 
     @GET
+    @RolesAllowed({"Teacher", "Admin", "Student"})
     public Collection<Question> getQuestions(
             @QueryParam("questionText") String questionText,
             @QueryParam("questionType") String questionType,
@@ -53,6 +59,7 @@ public class QuestionsResource {
     }
 
     @DELETE
+    @RolesAllowed({"Teacher", "Admin"})
     @Path("/{questionId}")
     public String deleteQuestion(@PathParam("questionId") Long questionId) {
         questionService.deleteQuestion(questionId);
