@@ -18,7 +18,7 @@ public class AnswerRepository implements Repository<Answer> {
     @Inject
     ConnectionProvider connectionProvider;
 
-    private static final String CREATE_QUERY = "insert into \"Answer\" (\"QuestionId\", \"AnswerText\", \"Answer_Order\", \"Fraction\") Values(?, ?, ?, ?);";
+    private static final String CREATE_QUERY = "insert into \"Answer\" (\"QuestionId\", \"AnswerText\", \"Answer_Order\", \"Fraction\") Values(?, ?, ?, ?) Returning \"Id\";";
 
     private static final String UPDATE_QUERY = "update \"Answer\" set \"QuestionId\" = ?, \"AnswerText\" = ?, \"Answer_Order\" = ?, \"Fraction\" = ? where \"Id\" = ?;";
 
@@ -35,6 +35,9 @@ public class AnswerRepository implements Repository<Answer> {
             statement.setInt(3, object.getAnswerOrder());
             statement.setDouble(4, object.getFraction());
             statement.execute();
+            statement.getResultSet().next();
+            object.setId(statement.getResultSet().getLong(1));
+            statement.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -50,6 +53,7 @@ public class AnswerRepository implements Repository<Answer> {
             statement.setDouble(4, object.getFraction());
             statement.setLong(5, object.getId());
             statement.execute();
+            statement.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -61,6 +65,7 @@ public class AnswerRepository implements Repository<Answer> {
             PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
             statement.setLong(1, object.getId());
             statement.execute();
+            statement.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -82,6 +87,7 @@ public class AnswerRepository implements Repository<Answer> {
                         resultSet.getDouble("Fraction"),
                         resultSet.getInt("AnswerOrder")));
             }
+            statement.close();
             return answers;
 
         } catch (SQLException e) {

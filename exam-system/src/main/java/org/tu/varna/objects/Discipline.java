@@ -1,8 +1,11 @@
 package org.tu.varna.objects;
 
+import java.util.Set;
+
 public class Discipline {
     private Long disciplineId;
     private String disciplineName;
+    private Set<User> users;
 
     public Discipline(Long disciplineId, String disciplineName) {
         this.disciplineId = disciplineId;
@@ -26,4 +29,10 @@ public class Discipline {
     public void setDisciplineName(String disciplineName) {
         this.disciplineName = disciplineName;
     }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {this.users = users;}
 }

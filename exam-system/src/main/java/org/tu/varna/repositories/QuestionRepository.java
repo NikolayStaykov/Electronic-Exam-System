@@ -13,7 +13,7 @@ import java.util.Collection;
 @ApplicationScoped
 public class QuestionRepository implements Repository<Question>{
 
-    private static final String CREATE_QUERY = "insert into \"Question\" (\"QuestionText\", \"QuestionType\", \"DisciplineId\") Values(?, ?, ?);";
+    private static final String CREATE_QUERY = "insert into \"Question\" (\"QuestionText\", \"QuestionType\", \"DisciplineId\") Values(?, ?, ?) Returning \"Id\";";
 
     private static final String UPDATE_QUERY = "update \"Question\" set \"QuestionText\" = ?, \"QuestionType\" = ?, \"DisciplineId\" = ? where \"Id\" = ?";
 
@@ -32,6 +32,9 @@ public class QuestionRepository implements Repository<Question>{
             statement.setString(2, object.getQuestionType().toString());
             statement.setLong(3, object.getDiscipline().getDisciplineId());
             statement.execute();
+            statement.getResultSet().next();
+            object.setId(statement.getResultSet().getLong(1));
+            statement.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -46,6 +49,7 @@ public class QuestionRepository implements Repository<Question>{
             statement.setLong(3, object.getDiscipline().getDisciplineId());
             statement.setLong(4, object.getId());
             statement.execute();
+            statement.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -57,6 +61,7 @@ public class QuestionRepository implements Repository<Question>{
             PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
             statement.setLong(1, object.getId());
             statement.execute();
+            statement.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -77,6 +82,7 @@ public class QuestionRepository implements Repository<Question>{
                         resultSet.getString("QuestionText"),
                         QuestionType.valueOf(resultSet.getString("QuestionType"))));
             }
+            statement.close();
             return questions;
         } catch (SQLException e) {
             throw new RuntimeException(e);
