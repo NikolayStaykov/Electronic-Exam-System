@@ -2,33 +2,21 @@ package org.tu.varna.resources;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import org.tu.varna.objects.Discipline;
 import org.tu.varna.objects.User;
-import org.tu.varna.services.DisciplineService;
 import org.tu.varna.services.UserService;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 @Path( "/student")
 public class StudentResource {
 
     @Inject
     UserService userService;
 
-    @Inject
-    DisciplineService disciplineService;
-
     @GET
     @Path("/{UniversityID}")
     public User getStudent(@PathParam("UniversityID") String universityID,
                            @QueryParam("loadDisciplines") boolean loadDisciplines){
-        User result = userService.getUser(universityID);
-        if(loadDisciplines){
-            result.setDisciplines(getDisciplines(result));
-        }
-        return result;
+        return userService.getUser(universityID, loadDisciplines);
     }
 
     @GET
@@ -36,11 +24,7 @@ public class StudentResource {
         User searchTemplate = new User();
         searchTemplate.setRole("Student");
         searchTemplate.setEmail(email);
-        Collection<User> result = userService.getUsers(searchTemplate);
-        if(loadDisciplines){
-            result.forEach(user -> user.setDisciplines(getDisciplines(user)));
-        }
-        return result;
+        return userService.getUsers(searchTemplate, loadDisciplines);
     }
 
     @POST
@@ -68,11 +52,4 @@ public class StudentResource {
         userService.deleteUser(universityID);
         return "User deleted";
     }
-
-    private Set<Discipline> getDisciplines(User user){
-        Discipline searchTemplate = new Discipline();
-        searchTemplate.setUsers(Set.of(user));
-        return new HashSet<>(disciplineService.getDisciplines(searchTemplate));
-    }
-
 }

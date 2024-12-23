@@ -11,7 +11,7 @@ public interface QuestionService {
 
     void updateQuestion(Question question);
 
-    Question getQuestion(Long questionId);
+    Question getQuestion(Long questionId, boolean loadAnswers);
 
-    Collection<Question> getQuestions(Question searchTemplate);
+    Collection<Question> getQuestions(Question searchTemplate, boolean loadAnswers);
 }

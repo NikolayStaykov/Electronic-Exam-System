@@ -7,11 +7,10 @@ import jakarta.ws.rs.*;
 import org.tu.varna.objects.Discipline;
 import org.tu.varna.objects.User;
 import org.tu.varna.services.DisciplineService;
-import org.tu.varna.services.UserService;
+import org.tu.varna.services.DisciplineUserService;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 @Path("/disciplines")
 public class DisciplineResource {
@@ -20,18 +19,14 @@ public class DisciplineResource {
     DisciplineService disciplineService;
 
     @Inject
-    UserService userService;
+    DisciplineUserService disciplineUserService;
 
     @GET
     @RolesAllowed({"Teacher", "Admin", "Student"})
     @Path("/{disciplineId}")
     public Discipline getDiscipline(@PathParam("disciplineId") Long disciplineId,
                                     @QueryParam("loadUsers") boolean loadUsers){
-        Discipline result = disciplineService.getDiscipline(disciplineId);
-        if(loadUsers){
-            result.setUsers(getUsers(result));
-        }
-        return result;
+        return disciplineService.getDiscipline(disciplineId, loadUsers);
     }
 
     @GET
@@ -50,11 +45,7 @@ public class DisciplineResource {
             user.setUniversityId(userId);
             searchTemplate.getUsers().add(user);
         }
-        Collection<Discipline> result = disciplineService.getDisciplines(searchTemplate);
-        if(loadUsers){
-            result.forEach(discipline -> discipline.setUsers(getUsers(discipline)));
-        }
-        return result;
+        return disciplineService.getDisciplines(searchTemplate, loadUsers);
     }
 
     @PUT
@@ -83,9 +74,20 @@ public class DisciplineResource {
         return "Discipline deleted";
     }
 
-    private Set<User> getUsers(Discipline discipline){
-        User searchTemplate = new User();
-        searchTemplate.setDisciplines(Set.of(discipline));
-        return new HashSet<>(userService.getUsers(searchTemplate));
+    @PUT
+    @Path("/{disciplineId}/users")
+    public String addUserToDiscipline(@PathParam("disciplineId") Long disciplineId,
+                               String userId){
+        disciplineUserService.addUserToDiscipline(disciplineId, userId);
+        return "User added to Discipline " + disciplineId;
     }
+
+    @DELETE
+    @Path("/{disciplineId}/users")
+    public String removeUserFromDiscipline(@PathParam("disciplineId") Long disciplineId,
+                                           String userId){
+        disciplineUserService.removeUserFromDiscipline(disciplineId, userId);
+        return "User removed from Discipline " + disciplineId;
+    }
+
 }

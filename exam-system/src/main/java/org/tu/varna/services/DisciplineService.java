@@ -11,7 +11,7 @@ public interface DisciplineService {
 
     void updateDiscipline(Discipline discipline);
 
-    Discipline getDiscipline(Long disciplineId);
+    Discipline getDiscipline(Long disciplineId, boolean loadUsers);
 
-    Collection<Discipline> getDisciplines(Discipline searchTemplate);
+    Collection<Discipline> getDisciplines(Discipline searchTemplate,boolean loadUsers);
 }

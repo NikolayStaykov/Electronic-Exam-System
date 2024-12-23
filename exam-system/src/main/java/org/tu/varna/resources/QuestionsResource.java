@@ -1,6 +1,5 @@
 package org.tu.varna.resources;
 
-import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -28,7 +27,7 @@ public class QuestionsResource {
     @RolesAllowed({"Teacher", "Admin"})
     @Path("/{questionId}")
     public String updateQuestion(@PathParam("questionId") Long questionId, Question requestBody) {
-        if(questionId != requestBody.getId())
+        if(questionId.equals(requestBody.getId()))
         {
             return "Question id mismatch";
         }
@@ -39,8 +38,9 @@ public class QuestionsResource {
     @GET
     @RolesAllowed({"Teacher", "Admin", "Student"})
     @Path("/{questionId}")
-    public Question getQuestion(@PathParam("questionId") Long questionId) {
-        return questionService.getQuestion(questionId);
+    public Question getQuestion(@PathParam("questionId") Long questionId,
+                                @QueryParam("loadAnswers") boolean loadAnswers) {
+        return questionService.getQuestion(questionId, loadAnswers);
     }
 
     @GET
@@ -48,14 +48,15 @@ public class QuestionsResource {
     public Collection<Question> getQuestions(
             @QueryParam("questionText") String questionText,
             @QueryParam("questionType") String questionType,
-            @QueryParam("diciplineId") Long disciplineId) {
+            @QueryParam("disciplineId") Long disciplineId,
+            @QueryParam("loadAnswers") boolean loadAnswers) {
         Question searchTemplate = new Question();
         searchTemplate.setQuestionText(questionText);
         searchTemplate.setQuestionType(questionType != null ? QuestionType.valueOf(questionType) : null);
-        Discipline dicipline = new Discipline();
-        dicipline.setDisciplineId(disciplineId);
-        searchTemplate.setDiscipline(disciplineId != null ? dicipline : null);
-        return questionService.getQuestions(searchTemplate);
+        Discipline discipline = new Discipline();
+        discipline.setDisciplineId(disciplineId);
+        searchTemplate.setDiscipline(disciplineId != null ? discipline : null);
+        return questionService.getQuestions(searchTemplate, loadAnswers);
     }
 
     @DELETE
