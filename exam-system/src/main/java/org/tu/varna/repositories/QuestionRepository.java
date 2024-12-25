@@ -2,6 +2,7 @@ package org.tu.varna.repositories;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.tu.varna.objects.Discipline;
 import org.tu.varna.objects.Question;
 import org.tu.varna.objects.QuestionType;
 import org.tu.varna.repositories.connectors.ConnectionProvider;
@@ -20,6 +21,8 @@ public class QuestionRepository implements Repository<Question>{
     private static final String DELETE_QUERY = "delete from \"Question\" where \"Id\" = ?";
 
     private static final String FIND_QUERY = "select * from \"Question\" where 1 = 1";
+
+    private static final String FIND_QUERY_QUESTION_SET = "select * from \"Question\" join \"QuestionSetQuestion\" on \"QuestionId\" = \"Id\" where \"QuestionSetId\" = ?";
 
     @Inject
     ConnectionProvider connectionProvider;
@@ -74,16 +77,9 @@ public class QuestionRepository implements Repository<Question>{
 
             formatParameters(statement, template);
 
-            ResultSet resultSet = statement.executeQuery();
-            ArrayList<Question> questions = new ArrayList<>();
-            while (resultSet.next()) {
-                questions.add(new Question(
-                        resultSet.getLong("Id"),
-                        resultSet.getString("QuestionText"),
-                        QuestionType.valueOf(resultSet.getString("QuestionType"))));
-            }
+            Collection<Question> result = processSearch(statement);
             statement.close();
-            return questions;
+            return result;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -124,5 +120,33 @@ public class QuestionRepository implements Repository<Question>{
         if(template.getQuestionType() != null) {
             statement.setString(criteriaIndex, template.getQuestionType().toString());
         }
+    }
+
+    public Collection<Question> findAllQuestionsForQuestionSet(Long questionSetId) {
+        try (Connection connection = connectionProvider.getConnection()){
+            PreparedStatement statement = connection.prepareStatement(FIND_QUERY_QUESTION_SET);
+            statement.setLong(1, questionSetId);
+            Collection<Question> result = processSearch(statement);
+            statement.close();
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Collection<Question> processSearch(PreparedStatement statement) throws SQLException {
+        ResultSet resultSet = statement.executeQuery();
+        ArrayList<Question> questions = new ArrayList<>();
+        while (resultSet.next()) {
+            questions.add(new Question(
+                    resultSet.getLong("Id"),
+                    resultSet.getString("QuestionText"),
+                    QuestionType.valueOf(resultSet.getString("QuestionType")),
+                    new Discipline(resultSet.getLong("DisciplineId"),null),
+                    null,
+                    resultSet.getDouble("DefaultGrade"),
+                    resultSet.getDouble("Penalty")));
+        }
+        return questions;
     }
 }

@@ -14,4 +14,6 @@ public interface QuestionService {
     Question getQuestion(Long questionId, boolean loadAnswers);
 
     Collection<Question> getQuestions(Question searchTemplate, boolean loadAnswers);
+
+    Collection<Question> getQuestionsForQuestionSet(Long questionSetId, boolean loadAnswers);
 }

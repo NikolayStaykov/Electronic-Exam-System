@@ -59,6 +59,15 @@ public class BasicQuestionService implements QuestionService {
         return result;
     }
 
+    @Override
+    public Collection<Question> getQuestionsForQuestionSet(Long questionSetId, boolean loadAnswers) {
+        Collection<Question> result = questionRepository.findAllQuestionsForQuestionSet(questionSetId);
+        if(loadAnswers){
+            result.forEach(question -> question.setAnswers(getAnswers(question)));
+        }
+        return result;
+    }
+
     private Set<Answer> getAnswers(Question question){
         Answer searchTemplate = new Answer();
         searchTemplate.setQuestionId(question.getId());

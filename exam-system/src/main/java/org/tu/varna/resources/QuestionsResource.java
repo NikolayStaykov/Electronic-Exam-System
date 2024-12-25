@@ -1,5 +1,6 @@
 package org.tu.varna.resources;
 
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -17,7 +18,8 @@ public class QuestionsResource {
     QuestionService questionService;
 
     @PUT
-    @RolesAllowed({"Teacher", "Admin"})
+    //@RolesAllowed({"Teacher", "Admin"})
+    @PermitAll
     public String createQuestion(Question requestBody) {
         questionService.createQuestion(requestBody);
         return "Question created";
