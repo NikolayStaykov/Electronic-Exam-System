@@ -22,10 +22,20 @@ public class QuestionSetResource {
     }
 
     @GET
-    public Collection<QuestionSet> getQuestionSets(QuestionSet requestBody,
-                                                   @QueryParam("loadChildQuestionSets") boolean loadChildQuestionSets,
-                                                   @QueryParam("loadQuestions") boolean loadQuestions) {
-        return questionSetService.getQuestionSets(requestBody,loadChildQuestionSets,loadQuestions);
+    public Collection<QuestionSet> getQuestionSets(@QueryParam("loadChildQuestionSets") boolean loadChildQuestionSets,
+                                                   @QueryParam("loadQuestions") boolean loadQuestions,
+                                                   @QueryParam("id") Long questionSetId,
+                                                   @QueryParam("name") String name,
+                                                   @QueryParam("info") String info,
+                                                   @QueryParam("disciplineId") Long disciplineId,
+                                                   @QueryParam("parentQUestionSetId") Long parentQuestionSetId) {
+        QuestionSet searchTemplate = new QuestionSet();
+        searchTemplate.setId(questionSetId);
+        searchTemplate.setName(name);
+        searchTemplate.setInfo(info);
+        searchTemplate.setDisciplineId(disciplineId);
+        searchTemplate.setParentQuestionSetId(parentQuestionSetId);
+        return questionSetService.getQuestionSets(searchTemplate,loadChildQuestionSets,loadQuestions);
     }
 
     @PUT
