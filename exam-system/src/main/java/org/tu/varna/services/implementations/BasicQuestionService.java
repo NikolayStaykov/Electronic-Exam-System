@@ -23,7 +23,13 @@ public class BasicQuestionService implements QuestionService {
 
     @Override
     public void createQuestion(Question question) {
+
         questionRepository.save(question);
+        question.getAnswers().forEach(answer->{
+            answer.setQuestionId(question.getId());
+            answerService.createAnswer(answer);
+        });
+
     }
 
     @Override
@@ -36,6 +42,14 @@ public class BasicQuestionService implements QuestionService {
     @Override
     public void updateQuestion(Question question) {
         questionRepository.update(question);
+        question.getAnswers().forEach(answer->{
+            answer.setQuestionId(question.getId());
+            if(answer.getId() != null){
+                answerService.createAnswer(answer);
+            } else {
+                answerService.updateAnswer(answer);
+            }
+        });
     }
 
     @Override

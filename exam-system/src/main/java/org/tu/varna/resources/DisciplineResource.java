@@ -90,4 +90,10 @@ public class DisciplineResource {
         return "User removed from Discipline " + disciplineId;
     }
 
+    @GET
+    @Path("/{disciplineId}/users")
+    public Collection<User> getUsersForDiscipline(@PathParam("disciplineId") Long disciplineId){
+        return disciplineUserService.getUsersForDiscipline(disciplineId);
+    }
+
 }

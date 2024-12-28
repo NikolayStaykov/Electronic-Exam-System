@@ -3,6 +3,7 @@ package org.tu.varna.resources;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import org.tu.varna.objects.QuestionSet;
+import org.tu.varna.services.QuestionSetQuestionService;
 import org.tu.varna.services.QuestionSetService;
 
 import java.util.Collection;
@@ -12,6 +13,9 @@ public class QuestionSetResource {
 
     @Inject
     QuestionSetService questionSetService;
+
+    @Inject
+    QuestionSetQuestionService questionSetQuestionService;
 
     @Path("/{questionSetId}")
     @GET
@@ -54,4 +58,21 @@ public class QuestionSetResource {
         questionSetService.update(requestBody);
         return "QuestionSet updated";
     }
+
+    @PUT
+    @Path("/{QuestionsetId}/questions")
+    public String addQuestionToQuestionSet(@PathParam("QuestionsetId") Long questionSetId,
+                                           Long questionId) {
+        questionSetQuestionService.addQuestion(questionSetId,questionId);
+        return "Question added";
+    }
+
+    @DELETE
+    @Path("/{QuestionsetId}/questions")
+    public String removeQuestionFromQuestionSet(@PathParam("QuestionsetId") Long questionSetId,
+                                                Long questionId) {
+        questionSetQuestionService.removeQuestion(questionSetId,questionId);
+        return "Question removed";
+    }
+
 }

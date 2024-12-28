@@ -14,9 +14,9 @@ import java.util.Collection;
 @ApplicationScoped
 public class QuestionRepository implements Repository<Question>{
 
-    private static final String CREATE_QUERY = "insert into \"Question\" (\"QuestionText\", \"QuestionType\", \"DisciplineId\") Values(?, ?, ?) Returning \"Id\";";
+    private static final String CREATE_QUERY = "insert into \"Question\" (\"QuestionText\", \"QuestionType\", \"DisciplineId\", \"DefaultGrade\", \"Penalty\") Values(?, ?, ?, ?, ?) Returning \"Id\";";
 
-    private static final String UPDATE_QUERY = "update \"Question\" set \"QuestionText\" = ?, \"QuestionType\" = ?, \"DisciplineId\" = ? where \"Id\" = ?";
+    private static final String UPDATE_QUERY = "update \"Question\" set \"QuestionText\" = ?, \"QuestionType\" = ?, \"DisciplineId\" = ?, \"DefaultGrade\" = ?, \"Penalty\" = ? where \"Id\" = ?";
 
     private static final String DELETE_QUERY = "delete from \"Question\" where \"Id\" = ?";
 
@@ -34,6 +34,8 @@ public class QuestionRepository implements Repository<Question>{
             statement.setString(1, object.getQuestionText());
             statement.setString(2, object.getQuestionType().toString());
             statement.setLong(3, object.getDiscipline().getDisciplineId());
+            statement.setDouble(4,object.getDefaultGrade());
+            statement.setDouble(5,object.getPenalty());
             statement.execute();
             statement.getResultSet().next();
             object.setId(statement.getResultSet().getLong(1));

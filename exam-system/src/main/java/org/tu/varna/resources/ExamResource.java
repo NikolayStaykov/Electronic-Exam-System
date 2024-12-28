@@ -3,7 +3,9 @@ package org.tu.varna.resources;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import org.tu.varna.objects.Exam;
+import org.tu.varna.objects.User;
 import org.tu.varna.services.ExamService;
+import org.tu.varna.services.ExamUserService;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -12,6 +14,9 @@ import java.util.Collection;
 public class ExamResource {
     @Inject
     ExamService examService;
+
+    @Inject
+    ExamUserService examUserService;
 
     @GET
     @Path("/{examId}")
@@ -59,5 +64,25 @@ public class ExamResource {
         }
         examService.updateExam(exam);
         return "Exam updated";
+    }
+
+    @PUT
+    @Path("{examId}/users")
+    public String addAccessToExam(@PathParam("examId") Long examID, String UniversityID){
+        examUserService.addUserToExam(UniversityID,examID);
+        return "Exam access added";
+    }
+
+    @DELETE
+    @Path("{examId}/users")
+    public String removeAccessToExam(@PathParam("examId") Long examID, String UniversityID){
+        examUserService.removeUserFromExam(UniversityID,examID);
+        return "Exam access added";
+    }
+
+    @GET
+    @Path("{examId}/users")
+    public Collection<User> getExams(@PathParam("examId") Long examID){
+        return examUserService.geeExamUsers(examID);
     }
 }

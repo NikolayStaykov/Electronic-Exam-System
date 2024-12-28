@@ -2,7 +2,11 @@ package org.tu.varna.resources;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import org.tu.varna.objects.Discipline;
+import org.tu.varna.objects.Exam;
 import org.tu.varna.objects.User;
+import org.tu.varna.services.DisciplineUserService;
+import org.tu.varna.services.ExamUserService;
 import org.tu.varna.services.UserService;
 
 import java.util.Collection;
@@ -11,6 +15,12 @@ public class StudentResource {
 
     @Inject
     UserService userService;
+
+    @Inject
+    DisciplineUserService disciplineUserService;
+
+    @Inject
+    ExamUserService examUserService;
 
     @GET
     @Path("/{UniversityID}")
@@ -51,5 +61,46 @@ public class StudentResource {
     public String deleteStudent(@PathParam("UniversityID") String universityID){
         userService.deleteUser(universityID);
         return "User deleted";
+    }
+
+    @PUT
+    @Path("{UniversityID}/disciplines")
+    public String addAccessToDiscipline(@PathParam("UniversityID") String UniversityID, Long disciplineID){
+        disciplineUserService.addUserToDiscipline(disciplineID, UniversityID);
+        return "Discipline access added";
+    }
+
+    @DELETE
+    @Path("{UniversityID}/disciplines")
+    public String removeAccessFromDiscipline(@PathParam("UniversityID") String UniversityID,
+                                             Long disciplineId){
+        disciplineUserService.removeUserFromDiscipline(disciplineId, UniversityID);
+        return "Discipline access removed";
+    }
+
+    @GET
+    @Path("{UniversityID}/disciplines")
+    public Collection<Discipline> getDisciplines(@PathParam("UniversityID") String UniversityID){
+        return disciplineUserService.getDisciplinesForUser(UniversityID);
+    }
+
+    @PUT
+    @Path("{UniversityID}/exams")
+    public String addAccessToExam(@PathParam("UniversityID") String UniversityID, Long examID){
+        examUserService.addUserToExam(UniversityID,examID);
+        return "Exam access added";
+    }
+
+    @DELETE
+    @Path("{UniversityID}/exams")
+    public String removeAccessToExam(@PathParam("UniversityID") String UniversityID, Long examID){
+        examUserService.removeUserFromExam(UniversityID,examID);
+        return "Exam access added";
+    }
+
+    @GET
+    @Path("{UniversityID}/exams")
+    public Collection<Exam> getExams(@PathParam("UniversityID") String UniversityID){
+        return examUserService.getUserExams(UniversityID);
     }
 }

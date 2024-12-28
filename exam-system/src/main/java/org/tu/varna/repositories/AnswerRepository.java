@@ -32,7 +32,11 @@ public class AnswerRepository implements Repository<Answer> {
             PreparedStatement statement = connection.prepareStatement(CREATE_QUERY);
             statement.setLong(1, object.getQuestionId());
             statement.setString(2, object.getAnswerText());
-            statement.setInt(3, object.getAnswerOrder());
+            if(object.getAnswerOrder() != null){
+                statement.setInt(3, object.getAnswerOrder());
+            } else {
+                statement.setNull(3, java.sql.Types.INTEGER);
+            }
             statement.setDouble(4, object.getFraction());
             statement.execute();
             statement.getResultSet().next();

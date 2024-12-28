@@ -2,7 +2,9 @@ package org.tu.varna.resources;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import org.tu.varna.objects.Discipline;
 import org.tu.varna.objects.User;
+import org.tu.varna.services.DisciplineUserService;
 import org.tu.varna.services.UserService;
 
 import java.util.Collection;
@@ -12,6 +14,9 @@ public class TeacherResource {
 
     @Inject
     UserService userService;
+
+    @Inject
+    DisciplineUserService disciplineUserService;
 
 
     @Path("/{universityId}")
@@ -53,5 +58,26 @@ public class TeacherResource {
     public String deleteTeacher(@PathParam("universityId") String universityID){
         userService.deleteUser(universityID);
         return "User deleted";
+    }
+
+    @PUT
+    @Path("/{universityId}/disciplines")
+    public String addAccessToDiscipline(@PathParam("universityId") String universityId, Long disciplineID){
+        disciplineUserService.addUserToDiscipline(disciplineID, universityId);
+        return "Discipline access added";
+    }
+
+    @DELETE
+    @Path("/{universityId}/disciplines")
+    public String removeAccessFromDiscipline(@PathParam("universityId") String universityId,
+                                             Long disciplineId){
+        disciplineUserService.removeUserFromDiscipline(disciplineId, universityId);
+        return "Discipline access removed";
+    }
+
+    @GET
+    @Path("/{universityId}/disciplines")
+    public Collection<Discipline> getDisciplines(@PathParam("universityId") String universityId){
+        return disciplineUserService.getDisciplinesForUser(universityId);
     }
 }
