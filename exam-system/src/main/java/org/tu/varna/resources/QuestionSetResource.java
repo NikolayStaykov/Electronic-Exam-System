@@ -2,7 +2,7 @@ package org.tu.varna.resources;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import org.tu.varna.objects.QuestionSet;
+import org.tu.varna.entities.QuestionSet;
 import org.tu.varna.services.QuestionSetQuestionService;
 import org.tu.varna.services.QuestionSetService;
 

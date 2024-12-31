@@ -2,7 +2,7 @@ package org.tu.varna.repositories;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.tu.varna.objects.Exam;
+import org.tu.varna.entities.Exam;
 import org.tu.varna.repositories.connectors.ConnectionProvider;
 
 import java.sql.Connection;
@@ -14,13 +14,13 @@ import java.util.Collection;
 import java.util.List;
 @ApplicationScoped
 public class ExamRepository implements Repository<Exam> {
-    private static final String CREATE_QUERY = "INSERT INTO \"Exam\"(\"DisciplineId\", \"QuestionSetId\", \"ExamName\", \"TotalPoints\", \"StartDate\", \"Duration\") VALUES (?, ?, ?, ?, ?, ?, ?);";
+    private static final String CREATE_QUERY = "INSERT INTO \"Exam\"(\"DisciplineId\", \"QuestionSetId\", \"ExamName\", \"TotalPoints\", \"StartDate\", \"Duration\", \"NumberOfQuestions\") VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING \"Id\";";
 
     private static final String DELETE_QUERY = "DELETE FROM \"Exam\" WHERE \"Id\" = ?;";
 
     private static final String FIND_QUERY = "SELECT * FROM \"Exam\" WHERE 1 = 1;";
 
-    private static final String UPDATE_QUERY = "UPDATE \"Exam\" SET  \"DisciplineId\" = ?, \"QuestionSetId\" = ?, \"ExamName\" = ?, \"TotalPoints\" = ?, \"StartDate\" = ?, \"Duration\" = ? WHERE \"Id\" = ?;";
+    private static final String UPDATE_QUERY = "UPDATE \"Exam\" SET  \"DisciplineId\" = ?, \"QuestionSetId\" = ?, \"ExamName\" = ?, \"TotalPoints\" = ?, \"StartDate\" = ?, \"Duration\" = ?, \"NumberOfQuestions\" = ? WHERE \"Id\" = ?;";
 
     @Inject
     ConnectionProvider connectionProvider;
@@ -35,7 +35,10 @@ public class ExamRepository implements Repository<Exam> {
             preparedStatement.setInt(4, object.getTotalPoints());
             preparedStatement.setTimestamp(5, object.getStartDate());
             preparedStatement.setInt(6,object.getDurationMinutes());
+            preparedStatement.setInt(7, object.getNumberOfQuestions());
             preparedStatement.execute();
+            preparedStatement.getResultSet().next();
+            object.setId(preparedStatement.getResultSet().getLong(1));
             preparedStatement.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -52,7 +55,8 @@ public class ExamRepository implements Repository<Exam> {
             preparedStatement.setInt(4, object.getTotalPoints());
             preparedStatement.setTimestamp(5, object.getStartDate());
             preparedStatement.setInt(6,object.getDurationMinutes());
-            preparedStatement.setLong(7, object.getId());
+            preparedStatement.setInt(7, object.getNumberOfQuestions());
+            preparedStatement.setLong(8, object.getId());
             preparedStatement.execute();
             preparedStatement.close();
         } catch (SQLException e) {
@@ -86,7 +90,8 @@ public class ExamRepository implements Repository<Exam> {
                         resultSet.getLong("QuestionSetId"),
                         resultSet.getInt("TotalPoints"),
                         resultSet.getInt("Duration"),
-                        resultSet.getTimestamp("StartDate")));
+                        resultSet.getTimestamp("StartDate"),
+                        resultSet.getInt("NumberOfQuestions")));
             }
             resultSet.close();
             return result;

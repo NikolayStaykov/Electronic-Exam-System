@@ -1,4 +1,6 @@
-package org.tu.varna.objects;
+package org.tu.varna.entities;
+
+import org.tu.varna.common.QuestionType;
 
 import java.beans.JavaBean;
 import java.util.Set;

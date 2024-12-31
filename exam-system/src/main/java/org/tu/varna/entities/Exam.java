@@ -1,4 +1,4 @@
-package org.tu.varna.objects;
+package org.tu.varna.entities;
 
 import java.sql.Timestamp;
 
@@ -10,10 +10,11 @@ public class Exam {
     private Integer totalPoints;
     private Integer durationMinutes;
     private Timestamp startDate;
+    private Integer numberOfQuestions;
 
     public Exam() {}
 
-    public Exam(Long id, String examName, Long disciplineId, Long questionSetId, int totalPoints, int durationMinutes, Timestamp startDate) {
+    public Exam(Long id, String examName, Long disciplineId, Long questionSetId, int totalPoints, int durationMinutes, Timestamp startDate, Integer numberOfQuestions) {
         Id = id;
         ExamName = examName;
         this.disciplineId = disciplineId;
@@ -21,6 +22,7 @@ public class Exam {
         this.totalPoints = totalPoints;
         this.durationMinutes = durationMinutes;
         this.startDate = startDate;
+        this.numberOfQuestions = numberOfQuestions;
     }
 
     public Long getId() {
@@ -77,5 +79,13 @@ public class Exam {
 
     public void setStartDate(Timestamp startDate) {
         this.startDate = startDate;
+    }
+
+    public Integer getNumberOfQuestions() {
+        return numberOfQuestions;
+    }
+
+    public void setNumberOfQuestions(Integer numberOfQuestions) {
+        this.numberOfQuestions = numberOfQuestions;
     }
 }

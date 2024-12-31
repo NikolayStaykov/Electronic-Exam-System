@@ -1,6 +1,6 @@
 package org.tu.varna.services;
 
-import org.tu.varna.objects.Discipline;
+import org.tu.varna.entities.Discipline;
 
 import java.util.Collection;
 

@@ -2,14 +2,12 @@ package org.tu.varna.repositories;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.tu.varna.objects.Discipline;
-import org.tu.varna.objects.User;
+import org.tu.varna.entities.Discipline;
 import org.tu.varna.repositories.connectors.ConnectionProvider;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class DisciplineRepository implements Repository<Discipline> {

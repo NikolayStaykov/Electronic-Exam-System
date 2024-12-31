@@ -1,7 +1,7 @@
 package org.tu.varna.services;
 
-import org.tu.varna.objects.Discipline;
-import org.tu.varna.objects.User;
+import org.tu.varna.entities.Discipline;
+import org.tu.varna.entities.User;
 
 import java.util.Collection;
 

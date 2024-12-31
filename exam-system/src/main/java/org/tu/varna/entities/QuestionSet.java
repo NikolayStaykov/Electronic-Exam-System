@@ -1,4 +1,4 @@
-package org.tu.varna.objects;
+package org.tu.varna.entities;
 
 import java.util.Set;
 

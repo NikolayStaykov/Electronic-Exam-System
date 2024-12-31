@@ -2,8 +2,8 @@ package org.tu.varna.services.implementations;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.tu.varna.objects.Discipline;
-import org.tu.varna.objects.User;
+import org.tu.varna.entities.Discipline;
+import org.tu.varna.entities.User;
 import org.tu.varna.repositories.DisciplineRepository;
 import org.tu.varna.services.DisciplineService;
 import org.tu.varna.services.UserService;

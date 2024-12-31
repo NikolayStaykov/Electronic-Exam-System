@@ -4,9 +4,9 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import org.tu.varna.objects.Discipline;
-import org.tu.varna.objects.Question;
-import org.tu.varna.objects.QuestionType;
+import org.tu.varna.entities.Discipline;
+import org.tu.varna.entities.Question;
+import org.tu.varna.common.QuestionType;
 import org.tu.varna.services.QuestionService;
 
 import java.util.Collection;

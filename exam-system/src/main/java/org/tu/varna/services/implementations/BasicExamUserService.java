@@ -2,8 +2,8 @@ package org.tu.varna.services.implementations;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.tu.varna.objects.Exam;
-import org.tu.varna.objects.User;
+import org.tu.varna.entities.Exam;
+import org.tu.varna.entities.User;
 import org.tu.varna.repositories.connectors.ConnectionProvider;
 import org.tu.varna.services.ExamUserService;
 
@@ -64,7 +64,8 @@ public class BasicExamUserService implements ExamUserService {
                         resultSet.getLong("QuestionSetId"),
                         resultSet.getInt("TotalPoints"),
                         resultSet.getInt("Duration"),
-                        resultSet.getTimestamp("StartDate"))));
+                        resultSet.getTimestamp("StartDate"),
+                        resultSet.getInt("NumberOfQuestions"))));
             }
             statement.close();
             return exams;

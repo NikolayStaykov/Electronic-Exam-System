@@ -1,12 +1,11 @@
 package org.tu.varna.resources;
 
-import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.SecurityContext;
-import org.tu.varna.objects.Answer;
+import org.tu.varna.entities.Answer;
 import org.tu.varna.services.AnswerService;
 
 import java.util.Collection;
@@ -18,14 +17,11 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 public class AnswerResource {
 
     @Inject
-    JsonWebToken jwt;
-
-    @Inject
     AnswerService answerService;
 
     @PUT
     @RolesAllowed({"Teacher", "Admin"})
-    public void createAnswer(Answer requestBody, @Context SecurityContext ctx) {
+    public void createAnswer(Answer requestBody) {
         answerService.createAnswer(requestBody);
     }
 

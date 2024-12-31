@@ -1,4 +1,4 @@
-package org.tu.varna.objects;
+package org.tu.varna.common;
 
 public enum QuestionType {
     MULTIPLE_CHOICE, TRUE_FALSE, MATCHING, SHORT_ANSWER, NUMERICAL,

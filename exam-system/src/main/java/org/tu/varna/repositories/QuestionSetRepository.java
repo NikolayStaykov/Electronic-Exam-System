@@ -2,7 +2,7 @@ package org.tu.varna.repositories;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.tu.varna.objects.QuestionSet;
+import org.tu.varna.entities.QuestionSet;
 import org.tu.varna.repositories.connectors.ConnectionProvider;
 
 import java.sql.Connection;

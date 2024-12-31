@@ -2,7 +2,7 @@ package org.tu.varna.services.implementations;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.tu.varna.objects.QuestionSet;
+import org.tu.varna.entities.QuestionSet;
 import org.tu.varna.repositories.QuestionSetRepository;
 import org.tu.varna.services.QuestionService;
 import org.tu.varna.services.QuestionSetService;

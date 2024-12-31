@@ -1,6 +1,6 @@
 package org.tu.varna.services;
 
-import org.tu.varna.objects.Answer;
+import org.tu.varna.entities.Answer;
 
 import java.util.Collection;
 

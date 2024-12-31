@@ -1,4 +1,4 @@
-package org.tu.varna.objects;
+package org.tu.varna.entities;
 
 public class Answer {
     private Long Id;
