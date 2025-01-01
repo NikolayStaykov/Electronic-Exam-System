@@ -2,6 +2,7 @@ package org.tu.varna.services.implementations;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.tu.varna.common.ExamAttemptUtils;
 import org.tu.varna.dto.ExamResultDto;
 import org.tu.varna.entities.*;
 import org.tu.varna.repositories.ExamAttemptRepository;
@@ -83,7 +84,7 @@ public class BasicExamAttemptService implements ExamAttemptService {
                 statement.setLong(parameterIndex, examId);
             }
             ResultSet resultSet = statement.executeQuery();
-            List<ExamResultDto> examResultDtos = new ArrayList<>();
+            List<ExamResultDto> examResults = new ArrayList<>();
             while(resultSet.next()) {
                 ExamAttempt attempt = new ExamAttempt(
                         resultSet.getLong("Id"),
@@ -95,9 +96,9 @@ public class BasicExamAttemptService implements ExamAttemptService {
                 dto.setExamAttempt(attempt);
                 dto.setExam(examService.getExam(attempt.getExamId()));
                 dto.setQuestions(getQuestionsForExamAttempt(attempt));
-                examResultDtos.add(dto);
+                examResults.add(dto);
             }
-            return examResultDtos;
+            return examResults;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -119,25 +120,30 @@ public class BasicExamAttemptService implements ExamAttemptService {
         List<QuestionSet> questionSets = getQuestionSets(parentQuestionSet);
         Set<Question> allQuestions = new HashSet<>();
         Set<Question> currentQuestions = new HashSet<>();
-        questionSets.forEach(set ->{
-            allQuestions.addAll(set.getQuestions());
-        });
+        questionSets.forEach(set -> allQuestions.addAll(set.getQuestions()));
         if(allQuestions.size() < exam.getNumberOfQuestions()){
             throw new RuntimeException("Unable to start exam due to insufficient number of questions.");
         }
         if(allQuestions.stream().mapToDouble(Question::getDefaultGrade).sum() < exam.getTotalPoints()){
             throw new RuntimeException("Unable to start exam due to insufficient sum of points.");
         }
-        List<Question> orderedQuestions = allQuestions.stream().sorted(Comparator.comparing(Question::getDefaultGrade).reversed()).toList();
-        while(currentQuestions.size() != exam.getNumberOfQuestions() && !orderedQuestions.isEmpty()){
-            Question question = orderedQuestions.getFirst();
-            if(question.getDefaultGrade() + currentQuestions.stream().mapToDouble(Question::getDefaultGrade).sum() <= exam.getTotalPoints()){
-                currentQuestions.add(question);
+        Map<Double,List<Question>> questionsMap = new HashMap<>();
+        for(Question question : allQuestions){
+            if(!questionsMap.containsKey(question.getDefaultGrade())){
+                questionsMap.put(question.getDefaultGrade(), new ArrayList<>());
             }
-            orderedQuestions.removeFirst();
+            questionsMap.get(question.getDefaultGrade()).add(question);
         }
-        if(currentQuestions.size() != exam.getNumberOfQuestions() || currentQuestions.stream().mapToDouble(Question::getDefaultGrade).sum() != exam.getTotalPoints()){
-            throw new RuntimeException("Unable to generate requested number of questions with requested sum of points.");
+        ArrayList<ArrayList<Double>> variations = ExamAttemptUtils.findPointCombinations(questionsMap,exam.getTotalPoints(),exam.getNumberOfQuestions());
+        if(variations.isEmpty()){
+            throw new RuntimeException("Unable to generate exam with current question set.");
+        }
+        Random random = new Random();
+        ArrayList<Double> variation = variations.get(random.nextInt(variations.size()));
+        for (Double point : variation) {
+            Question question = questionsMap.get(point).get(random.nextInt(questionsMap.get(point).size()));
+            currentQuestions.add(question);
+            questionsMap.get(point).remove(question);
         }
         return currentQuestions.stream().map(Question::getId).collect(Collectors.toSet());
     }
@@ -145,9 +151,7 @@ public class BasicExamAttemptService implements ExamAttemptService {
     private List<QuestionSet> getQuestionSets(QuestionSet questionSet) {
         Set<QuestionSet> questionSets = new HashSet<>();
         questionSets.add(questionSet);
-        questionSet.getChildQuestionSets().forEach(childQuestionSet -> {
-            questionSets.addAll(getQuestionSets(childQuestionSet));
-        });
+        questionSet.getChildQuestionSets().forEach(childQuestionSet -> questionSets.addAll(getQuestionSets(childQuestionSet)));
         return questionSets.stream().toList();
     }
 
@@ -167,9 +171,7 @@ public class BasicExamAttemptService implements ExamAttemptService {
 
     private Map<Question,Set<Answer>> getQuestionsForExamAttempt(ExamAttempt attempt) {
         Map<Question,Set<Answer>> result = new HashMap<>();
-        attempt.getQuestionIds().forEach(questionId -> {
-            result.put(questionService.getQuestion(questionId,true), getSubmittedAnswers(attempt.getId(),questionId));
-        });
+        attempt.getQuestionIds().forEach(questionId -> result.put(questionService.getQuestion(questionId,true), getSubmittedAnswers(attempt.getId(),questionId)));
         return result;
     }
 
