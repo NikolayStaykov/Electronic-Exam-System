@@ -3,8 +3,8 @@ package org.tu.varna.entities;
 import java.sql.Timestamp;
 
 public class Exam {
-    private Long Id;
-    private String ExamName;
+    private Long id;
+    private String name;
     private Long disciplineId;
     private Long questionSetId;
     private Integer totalPoints;
@@ -15,8 +15,8 @@ public class Exam {
     public Exam() {}
 
     public Exam(Long id, String examName, Long disciplineId, Long questionSetId, int totalPoints, int durationMinutes, Timestamp startDate, Integer numberOfQuestions) {
-        Id = id;
-        ExamName = examName;
+        this.id = id;
+        name = examName;
         this.disciplineId = disciplineId;
         this.questionSetId = questionSetId;
         this.totalPoints = totalPoints;
@@ -26,19 +26,19 @@ public class Exam {
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getExamName() {
-        return ExamName;
+        return name;
     }
 
     public void setExamName(String examName) {
-        ExamName = examName;
+        name = examName;
     }
 
     public Long getDisciplineId() {
@@ -61,7 +61,7 @@ public class Exam {
         return totalPoints;
     }
 
-    public void setTotalPoints(int totalPoints) {
+    public void setTotalPoints(Integer totalPoints) {
         this.totalPoints = totalPoints;
     }
 
@@ -69,7 +69,7 @@ public class Exam {
         return durationMinutes;
     }
 
-    public void setDurationMinutes(int durationMinutes) {
+    public void setDurationMinutes(Integer durationMinutes) {
         this.durationMinutes = durationMinutes;
     }
 

@@ -1,14 +1,16 @@
 package org.tu.varna.resources;
 
+import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import org.tu.varna.common.AddQuestionRequestBody;
 import org.tu.varna.entities.QuestionSet;
 import org.tu.varna.services.QuestionSetQuestionService;
 import org.tu.varna.services.QuestionSetService;
 
 import java.util.Collection;
 
-@Path("questionSet")
+@Path("questionSets")
 public class QuestionSetResource {
 
     @Inject
@@ -18,6 +20,7 @@ public class QuestionSetResource {
     QuestionSetQuestionService questionSetQuestionService;
 
     @Path("/{questionSetId}")
+    @PermitAll
     @GET
     public QuestionSet getQuestionSet(@PathParam("questionSetId") Long questionSetId,
                                       @QueryParam("loadChildQuestionSets") boolean loadChildQuestionSets,
@@ -26,6 +29,7 @@ public class QuestionSetResource {
     }
 
     @GET
+    @PermitAll
     public Collection<QuestionSet> getQuestionSets(@QueryParam("loadChildQuestionSets") boolean loadChildQuestionSets,
                                                    @QueryParam("loadQuestions") boolean loadQuestions,
                                                    @QueryParam("id") Long questionSetId,
@@ -43,12 +47,14 @@ public class QuestionSetResource {
     }
 
     @PUT
+    @PermitAll
     public String createRQuestionSet(QuestionSet requestBody) {
         questionSetService.save(requestBody);
         return "QuestionSet created";
     }
 
     @POST
+    @PermitAll
     @Path("{questionSetId}")
     public String updateRQuestionSet(@PathParam("questionSetId") Long questionSetId
             ,QuestionSet requestBody) {
@@ -60,18 +66,20 @@ public class QuestionSetResource {
     }
 
     @PUT
+    @PermitAll
     @Path("/{QuestionsetId}/questions")
     public String addQuestionToQuestionSet(@PathParam("QuestionsetId") Long questionSetId,
-                                           Long questionId) {
-        questionSetQuestionService.addQuestion(questionSetId,questionId);
+                                           AddQuestionRequestBody body) {
+        questionSetQuestionService.addQuestion(questionSetId, body.getQuestionId());
         return "Question added";
     }
 
     @DELETE
+    @PermitAll
     @Path("/{QuestionsetId}/questions")
     public String removeQuestionFromQuestionSet(@PathParam("QuestionsetId") Long questionSetId,
-                                                Long questionId) {
-        questionSetQuestionService.removeQuestion(questionSetId,questionId);
+                                                AddQuestionRequestBody body) {
+        questionSetQuestionService.removeQuestion(questionSetId, body.getQuestionId());
         return "Question removed";
     }
 

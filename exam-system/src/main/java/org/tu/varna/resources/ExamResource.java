@@ -1,7 +1,10 @@
 package org.tu.varna.resources;
 
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import org.tu.varna.common.AddUserRequestBody;
 import org.tu.varna.dto.ExamResultDto;
 import org.tu.varna.entities.Exam;
 import org.tu.varna.entities.ExamAttempt;
@@ -15,7 +18,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
 
-@Path("exam")
+@Path("exams")
 public class ExamResource {
     @Inject
     ExamService examService;
@@ -27,12 +30,16 @@ public class ExamResource {
     ExamAttemptService examAttemptService;
 
     @GET
+    //@RolesAllowed({"Teacher", "Admin", "Student"})
+    @PermitAll
     @Path("/{examId}")
     public Exam getExam(@PathParam("examId") Long examId) {
         return examService.getExam(examId);
     }
 
     @GET
+    //@RolesAllowed({"Teacher", "Admin", "Student"})
+    @PermitAll
     public Collection<Exam> getExams(@QueryParam("Id") Long examId,
                                      @QueryParam("ExamName") String examName,
                                      @QueryParam("questionSetId") Long questionSetId,
@@ -52,12 +59,16 @@ public class ExamResource {
     }
 
     @PUT
+    //@RolesAllowed({"Teacher", "Admin"})
+    @PermitAll
     public String createExam(Exam exam) {
         examService.addExam(exam);
         return "Exam created";
     }
 
     @DELETE
+    //@RolesAllowed({"Teacher", "Admin"})
+    @PermitAll
     @Path("/{examId}")
     public String deleteExam(@PathParam("examId") Long examId) {
         examService.deleteExam(examId);
@@ -65,9 +76,11 @@ public class ExamResource {
     }
 
     @POST
+    //@RolesAllowed({"Teacher", "Admin"})
+    @PermitAll
     @Path("/{examId}")
     public String updateExam(@PathParam("examId") Long examId, Exam exam) {
-        if(examId.equals(exam.getId())){
+        if(!examId.equals(exam.getId())){
             return "Exam id Mismatch";
         }
         examService.updateExam(exam);
@@ -75,26 +88,34 @@ public class ExamResource {
     }
 
     @PUT
+    //@RolesAllowed({"Teacher", "Admin"})
+    @PermitAll
     @Path("/{examId}/users")
-    public String addAccessToExam(@PathParam("examId") Long examID, String UniversityID){
-        examUserService.addUserToExam(UniversityID,examID);
+    public String addAccessToExam(@PathParam("examId") Long examID, AddUserRequestBody body){
+        examUserService.addUserToExam(body.getUserId(), examID);
         return "Exam access added";
     }
 
     @DELETE
+    //@RolesAllowed({"Teacher", "Admin"})
+    @PermitAll
     @Path("/{examId}/users")
-    public String removeAccessToExam(@PathParam("examId") Long examID, String UniversityID){
-        examUserService.removeUserFromExam(UniversityID,examID);
+    public String removeAccessToExam(@PathParam("examId") Long examID, AddUserRequestBody body){
+        examUserService.removeUserFromExam(body.getUserId(),examID);
         return "Exam access added";
     }
 
     @GET
+    //@RolesAllowed({"Teacher", "Admin"})
+    @PermitAll
     @Path("/{examId}/users")
-    public Collection<User> getExams(@PathParam("examId") Long examID){
-        return examUserService.geeExamUsers(examID);
+    public Collection<User> getExamUsers(@PathParam("examId") Long examID){
+        return examUserService.getExamUsers(examID);
     }
 
     @GET
+    //@RolesAllowed({"Teacher", "Admin"})
+    @PermitAll
     @Path("/{examId}/attempts")
     public Collection<ExamResultDto> getExamAttempts(@PathParam("examId") Long examID,
                                                      @QueryParam("userId") String userId){
@@ -102,6 +123,8 @@ public class ExamResource {
     }
 
     @PUT
+    //@RolesAllowed({"Student"})
+    @PermitAll
     @Path("/{examId}/attempts")
     public ExamAttempt initiateExamAttempt(@PathParam("examId") Long examID,
                                            @QueryParam("studentId") String studentID){
@@ -114,6 +137,8 @@ public class ExamResource {
     }
 
     @POST
+    //@RolesAllowed({"Student"})
+    @PermitAll
     @Path("/{examId}/attempts/{attemptId}")
     public String answerQuestion(
             @PathParam("attemptId") Long attemptId,

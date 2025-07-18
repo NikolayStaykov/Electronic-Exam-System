@@ -20,13 +20,13 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class BasicExamAttemptService implements ExamAttemptService {
 
-    private static final String FIND_EXAM_ATTEMPTS_QUERY = "SELECT * FROM \"ExamAttempt\" WHERE 1 = 1;";
+    private static final String FIND_EXAM_ATTEMPTS_QUERY = "select * from exam_attempt where 1 = 1;";
 
-    private static final String ADD_QUESTION_TO_EXAM_ATTEMPT = "INSERT INTO \"ExamAttemptQuestion\"(\"ExamAttemptId\", \"QuestionId\") VALUES (?, ?);";
+    private static final String ADD_QUESTION_TO_EXAM_ATTEMPT = "insert into exam_attempt_question( exam_attempt_id, question_id)  values (?, ?);";
 
-    private static final String ADD_ANSWER_TO_EXAM_ATTEMPT_QUESTION = "INSERT INTO \"ExamAttemptQuestionAnswer\"(\"ExamAttemptId\", \"QuestionId\", \"AnswerId\") VALUES (?, ?, ?);";
+    private static final String ADD_ANSWER_TO_EXAM_ATTEMPT_QUESTION = "insert into exam_attempt_question_answer (exam_attempt_id, question_id, answer_id) values (?, ?, ?);";
 
-    private static final String FIND_SUBMITTED_ANSWERS_FOR_EXAM_ATTEMPT = "SELECT * FROM \"Answer\" JOIN  \"ExamAttemptQuestionAnswer\" ON \"Id\" = \"AnswerId\" WHERE \"ExamAttemptId\" = ? AND \"QuestionId\" = ?;";
+    private static final String FIND_SUBMITTED_ANSWERS_FOR_EXAM_ATTEMPT = "SELECT * FROM answer JOIN  exam_attempt_question_answer ON id = answer_id WHERE exam_attempt_id = ? AND question_id = ?;";
 
     @Inject
     ConnectionProvider connectionProvider;
@@ -87,10 +87,10 @@ public class BasicExamAttemptService implements ExamAttemptService {
             List<ExamResultDto> examResults = new ArrayList<>();
             while(resultSet.next()) {
                 ExamAttempt attempt = new ExamAttempt(
-                        resultSet.getLong("Id"),
-                        resultSet.getString("StudentId"),
-                        resultSet.getLong("ExamId"),
-                        resultSet.getTimestamp("StartDate")
+                        resultSet.getLong("id"),
+                        resultSet.getString("student_id"),
+                        resultSet.getLong("exam_id"),
+                        resultSet.getTimestamp("start_date")
                 );
                 ExamResultDto dto = new ExamResultDto();
                 dto.setExamAttempt(attempt);
@@ -107,10 +107,10 @@ public class BasicExamAttemptService implements ExamAttemptService {
     private String formatQuery(String userId, Long examId){
         String query = FIND_EXAM_ATTEMPTS_QUERY;
         if(userId != null){
-            query += " AND \"userId\" = ?";
+            query += " AND student_id = ?";
         }
         if(examId != null){
-            query += " AND \"examId\" = ?";
+            query += " AND exam_id = ?";
         }
         return query;
     }
@@ -183,11 +183,12 @@ public class BasicExamAttemptService implements ExamAttemptService {
             statement.setLong(2, questionId);
             ResultSet resultSet = statement.executeQuery();
             while(resultSet.next()){
-                submittedAnswers.add(new Answer(resultSet.getLong("Id"),
-                        resultSet.getString("AnswerText"),
-                        resultSet.getLong("QuestionId"),
-                        resultSet.getDouble("Fraction"),
-                        resultSet.getInt("SubmittedAnswerOrder")));
+                submittedAnswers.add(new Answer(
+                        resultSet.getLong("id"),
+                        resultSet.getString("text"),
+                        resultSet.getLong("question_id"),
+                        resultSet.getDouble("fraction"),
+                        resultSet.getInt("order")));
             }
             return submittedAnswers;
         } catch (SQLException e) {

@@ -22,23 +22,25 @@ public class QuestionsResource {
     @PermitAll
     public String createQuestion(Question requestBody) {
         questionService.createQuestion(requestBody);
-        return "Question created";
+        return requestBody.getId().toString();
     }
 
     @POST
-    @RolesAllowed({"Teacher", "Admin"})
+    //@RolesAllowed({"Teacher", "Admin"})
+    @PermitAll
     @Path("/{questionId}")
     public String updateQuestion(@PathParam("questionId") Long questionId, Question requestBody) {
-        if(questionId.equals(requestBody.getId()))
+        if(!questionId.equals(requestBody.getId()))
         {
             return "Question id mismatch";
         }
         questionService.updateQuestion(requestBody);
-        return "Questions updated";
+        return requestBody.getId().toString();
     }
 
     @GET
-    @RolesAllowed({"Teacher", "Admin", "Student"})
+    //@RolesAllowed({"Teacher", "Admin", "Student"})
+    @PermitAll
     @Path("/{questionId}")
     public Question getQuestion(@PathParam("questionId") Long questionId,
                                 @QueryParam("loadAnswers") boolean loadAnswers) {
@@ -46,7 +48,8 @@ public class QuestionsResource {
     }
 
     @GET
-    @RolesAllowed({"Teacher", "Admin", "Student"})
+    //@RolesAllowed({"Teacher", "Admin", "Student"})
+    @PermitAll
     public Collection<Question> getQuestions(
             @QueryParam("questionText") String questionText,
             @QueryParam("questionType") String questionType,
@@ -62,7 +65,8 @@ public class QuestionsResource {
     }
 
     @DELETE
-    @RolesAllowed({"Teacher", "Admin"})
+    //@RolesAllowed({"Teacher", "Admin"})
+    @PermitAll
     @Path("/{questionId}")
     public String deleteQuestion(@PathParam("questionId") Long questionId) {
         questionService.deleteQuestion(questionId);

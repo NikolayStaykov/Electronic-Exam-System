@@ -8,6 +8,7 @@ import java.util.Collection;
 public interface DisciplineUserService {
     void addUserToDiscipline(Long disciplineId, String userUniversityId);
     void removeUserFromDiscipline(Long disciplineId, String userUniversityId);
+    void removeAllUsersFromDiscipline(Long disciplineId);
     Collection<User> getUsersForDiscipline(Long disciplineId);
     Collection<Discipline> getDisciplinesForUser(String userUniversityId);
 }

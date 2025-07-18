@@ -5,10 +5,7 @@ import jakarta.inject.Inject;
 import org.tu.varna.entities.Answer;
 import org.tu.varna.repositories.connectors.ConnectionProvider;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -18,24 +15,24 @@ public class AnswerRepository implements Repository<Answer> {
     @Inject
     ConnectionProvider connectionProvider;
 
-    private static final String CREATE_QUERY = "insert into \"Answer\" (\"QuestionId\", \"AnswerText\", \"Answer_Order\", \"Fraction\") Values(?, ?, ?, ?) Returning \"Id\";";
+    private static final String CREATE_QUERY = "insert into answer (text, question_id, \"order\", fraction) values (?, ?, ?, ?) returning \"Id\";";
 
-    private static final String UPDATE_QUERY = "update \"Answer\" set \"QuestionId\" = ?, \"AnswerText\" = ?, \"Answer_Order\" = ?, \"Fraction\" = ? where \"Id\" = ?;";
+    private static final String UPDATE_QUERY = "update answer set question_id = ?, text = ?, \"order\" = ?, fraction = ? where \"Id\" = ?;";
 
-    private static final String DELETE_QUERY = "delete from \"Answer\" where \"Id\" = ?;";
+    private static final String DELETE_QUERY = "delete from answer where id = ?;";
 
-    private static final String FIND_QUERY = "select * from \"Answer\" where 1 = 1";
+    private static final String FIND_QUERY = "select * from answer where 1 = 1";
 
     @Override
     public void save(Answer object) {
         try (Connection connection = connectionProvider.getConnection()){
             PreparedStatement statement = connection.prepareStatement(CREATE_QUERY);
-            statement.setLong(1, object.getQuestionId());
-            statement.setString(2, object.getAnswerText());
+            statement.setString(1, object.getAnswerText());
+            statement.setLong(2, object.getQuestionId());
             if(object.getAnswerOrder() != null){
                 statement.setInt(3, object.getAnswerOrder());
             } else {
-                statement.setNull(3, java.sql.Types.INTEGER);
+                statement.setNull(3, Types.SMALLINT);
             }
             statement.setDouble(4, object.getFraction());
             statement.execute();
@@ -53,7 +50,11 @@ public class AnswerRepository implements Repository<Answer> {
             PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
             statement.setLong(1, object.getQuestionId());
             statement.setString(2, object.getAnswerText());
-            statement.setInt(3, object.getAnswerOrder());
+            if(object.getAnswerOrder() != null){
+                statement.setInt(3, object.getAnswerOrder());
+            } else {
+                statement.setNull(3, Types.SMALLINT);
+            }
             statement.setDouble(4, object.getFraction());
             statement.setLong(5, object.getId());
             statement.execute();
@@ -85,11 +86,11 @@ public class AnswerRepository implements Repository<Answer> {
             ArrayList<Answer> answers = new ArrayList<>();
             while (resultSet.next()) {
                 answers.add(new Answer(
-                        resultSet.getLong("Id"),
-                        resultSet.getString("AnswerText"),
-                        resultSet.getLong("QuestionId"),
-                        resultSet.getDouble("Fraction"),
-                        resultSet.getInt("AnswerOrder")));
+                        resultSet.getLong("id"),
+                        resultSet.getString("text"),
+                        resultSet.getLong("question_id"),
+                        resultSet.getDouble("fraction"),
+                        resultSet.getInt("order")));
             }
             statement.close();
             return answers;
@@ -102,19 +103,19 @@ public class AnswerRepository implements Repository<Answer> {
     private static String formatQuery(Answer template) {
         String query = FIND_QUERY;
         if(template.getId() != null) {
-            query += " and \"Id\" = ?";
+            query += " and id = ?";
         }
         if(template.getQuestionId() != null) {
-            query += " and \"QuestionId\" = ?";
+            query += " and question_id = ?";
         }
         if(template.getAnswerText() != null) {
-            query += " and \"AnswerText\" like ?";
+            query += " and text like ?";
         }
         if(template.getAnswerOrder() != null) {
-            query += " and \"Answer_Order\" = ?";
+            query += " and order = ?";
         }
         if(template.getFraction() != null) {
-            query += " and \"Fraction\" = ?";
+            query += " and fraction = ?";
         }
         return query;
     }

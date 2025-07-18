@@ -16,13 +16,13 @@ import java.util.List;
 @ApplicationScoped
 public class ExamAttemptRepository implements Repository<ExamAttempt> {
 
-    private static final String CREATE_QUERY = "INSERT INTO \"ExamAttempt\" (\"StudentId\", \"Start Date\", \"ExamId\") VALUES (?, ?, ?);";
+    private static final String CREATE_QUERY = "insert into exam_attempt (student_id, start_date,exam_id) values (?, ?, ?) returning id;";
 
-    private static final String UPDATE_QUERY = "UPDATE \"ExamAttempt\" SET \"StudentId\"=?, \"Start Date\"=?, \"ExamId\"=? WHERE \"Id\"=?;";
+    private static final String UPDATE_QUERY = "update exam_attempt set student_id = ? , start_date = ?, exam_id =?  where id = ?;";
 
-    private static final String DELETE_QUERY = "DELETE FROM \"ExamAttempt\" WHERE \"Id\"=?;";
+    private static final String DELETE_QUERY = "delete from exam_attempt where id = ?;";
 
-    private static final String FIND_QUERY = "SELECT * FROM \"ExamAttempt\" WHERE 1 = 1;";
+    private static final String FIND_QUERY = "select * from exam_attempt where 1 = 1";
 
     @Inject
     ConnectionProvider connectionProvider;
@@ -78,10 +78,10 @@ public class ExamAttemptRepository implements Repository<ExamAttempt> {
             List<ExamAttempt> attempts = new ArrayList<>();
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                attempts.add(new ExamAttempt(resultSet.getLong("Id"),
-                        resultSet.getString("StudentId"),
-                        resultSet.getLong("ExamId"),
-                        resultSet.getTimestamp("StartDate")));
+                attempts.add(new ExamAttempt(resultSet.getLong("id"),
+                        resultSet.getString("student_id"),
+                        resultSet.getLong("exam_id"),
+                        resultSet.getTimestamp("start_date")));
             }
             resultSet.close();
             statement.close();
@@ -94,16 +94,16 @@ public class ExamAttemptRepository implements Repository<ExamAttempt> {
     private String formatQuery(ExamAttempt template) {
         String query = FIND_QUERY;
         if(template.getId() != null){
-            query += " AND \"Id\"=?";
+            query += " AND id = ?";
         }
         if(template.getStudentId() != null){
-            query += " AND \"StudentId\"=?";
+            query += " AND student_id = ?";
         }
         if(template.getExamId() != null){
-            query += " AND \"ExamId\"=?";
+            query += " AND exam_id = ?";
         }
         if(template.getStartTime() != null){
-            query += " AND \"StartTime\"=?";
+            query += " AND start_date = ?";
         }
         return query;
     }

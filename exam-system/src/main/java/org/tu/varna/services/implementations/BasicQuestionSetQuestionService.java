@@ -12,9 +12,11 @@ import java.sql.SQLException;
 @ApplicationScoped
 public class BasicQuestionSetQuestionService implements QuestionSetQuestionService {
 
-    private static final String ADD_QUERY = "INSERT INTO \"QuestionSetQuestion\" (\"QuestionId\", \"QuestionSetId\") VALUES (?, ?);";
+    private static final String ADD_QUERY = "Insert into question_set_question (question_id, question_set_id) values (?, ?);";
 
-    private static final String DELETE_QUERY = "DELETE FROM \"QuestionSetQuestion\" WHERE \"QuestionId\" = ? and \"QuestionSetId\" = ?;";
+    private static final String DELETE_QUERY = "delete from question_set_question where question_id = ? and question_set_id = ?;";
+
+    private static final String DELETE_ALL_QUERY = "delete from question_set_question where question_set_id = ?;";
 
     @Inject
     ConnectionProvider connectionProvider;
@@ -29,11 +31,27 @@ public class BasicQuestionSetQuestionService implements QuestionSetQuestionServi
         executeAction(questionSetId, questionId, DELETE_QUERY);
     }
 
+    @Override
+    public void removeAllQuestions(Long questionSetId) {
+        executeDeleteAll(questionSetId);
+    }
+
     private void executeAction(Long questionSetId, Long questionId, String deleteQuery) {
         try (Connection connection = connectionProvider.getConnection()){
             PreparedStatement preparedStatement = connection.prepareStatement(deleteQuery);
             preparedStatement.setLong(1, questionId);
             preparedStatement.setLong(2, questionSetId);
+            preparedStatement.execute();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void executeDeleteAll(Long questionSetId) {
+        try (Connection connection = connectionProvider.getConnection()){
+            PreparedStatement preparedStatement = connection.prepareStatement(DELETE_ALL_QUERY);
+            preparedStatement.setLong(1, questionSetId);
             preparedStatement.execute();
             preparedStatement.close();
         } catch (SQLException e) {

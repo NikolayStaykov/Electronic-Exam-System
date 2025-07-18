@@ -1,15 +1,17 @@
 package org.tu.varna.resources;
 
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import org.tu.varna.entities.Discipline;
 import org.tu.varna.entities.User;
 import org.tu.varna.services.DisciplineUserService;
 import org.tu.varna.services.UserService;
 
 import java.util.Collection;
+import java.util.List;
 
-@Path("/teacher")
+@Path("/teachers")
 public class TeacherResource {
 
     @Inject
@@ -20,6 +22,8 @@ public class TeacherResource {
 
 
     @Path("/{universityId}")
+    //@RolesAllowed({"Teacher", "Admin"})
+    @PermitAll
     @GET
     public User getTeacherById(@PathParam("universityId") String universityID,
                                @QueryParam("loadDisciplines") boolean loadDisciplines){
@@ -27,6 +31,8 @@ public class TeacherResource {
     }
 
     @GET
+    //@RolesAllowed({"Admin"})
+    @PermitAll
     public Collection<User> getTeachers(@QueryParam("email") String email, @QueryParam("loadDisciplines") boolean loadDisciplines){
         User searchTemplate = new User();
         searchTemplate.setRole("Teacher");
@@ -35,6 +41,8 @@ public class TeacherResource {
     }
 
     @PUT
+    //@RolesAllowed({"Admin"})
+    @PermitAll
     public String createTeacher(User requestBody){
         if(requestBody.getRole() != null && !requestBody.getRole().equals("Teacher")){
             return "Role mismatch";
@@ -44,6 +52,8 @@ public class TeacherResource {
     }
 
     @POST
+   // @RolesAllowed({"Admin"})
+    @PermitAll
     @Path("/{universityId}")
     public String updateTeacher(@PathParam("universityId") String universityID, User requestBody){
         if(!universityID.equals(requestBody.getUniversityId())){
@@ -54,30 +64,23 @@ public class TeacherResource {
     }
 
     @DELETE
+    //@RolesAllowed({"Admin"})
+    @PermitAll
     @Path("/{universityId}")
     public String deleteTeacher(@PathParam("universityId") String universityID){
         userService.deleteUser(universityID);
         return "User deleted";
     }
 
-    @PUT
-    @Path("/{universityId}/disciplines")
-    public String addAccessToDiscipline(@PathParam("universityId") String universityId, Long disciplineID){
-        disciplineUserService.addUserToDiscipline(disciplineID, universityId);
-        return "Discipline access added";
-    }
-
-    @DELETE
-    @Path("/{universityId}/disciplines")
-    public String removeAccessFromDiscipline(@PathParam("universityId") String universityId,
-                                             Long disciplineId){
-        disciplineUserService.removeUserFromDiscipline(disciplineId, universityId);
-        return "Discipline access removed";
-    }
-
-    @GET
-    @Path("/{universityId}/disciplines")
-    public Collection<Discipline> getDisciplines(@PathParam("universityId") String universityId){
-        return disciplineUserService.getDisciplinesForUser(universityId);
+    @POST
+    //@RolesAllowed({"Admin"})
+    @PermitAll
+    @Path("/import")
+    public String importTeacher(List<User> requestBody){
+        for(User user : requestBody){
+            user.setRole("Teacher");
+            userService.createUser(user);
+        }
+        return "Teachers imported";
     }
 }

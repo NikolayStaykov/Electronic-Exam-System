@@ -17,13 +17,13 @@ import java.util.List;
 
 @ApplicationScoped
 public class BasicExamUserService implements ExamUserService {
-    private static final String ADD_QUERY = "INSERT INTO \"ExamUser\" (\"ExamId\", \"UserId\") VALUES (?, ?);";
+    private static final String ADD_QUERY = "insert into exam_user (exam_id,user_id) values (?, ?);";
 
-    private static final String REMOVE_QUERY = "DELETE FROM \"ExamUser\" WHERE \"ExamId\" = ? and \"UserId\" = ?;";
+    private static final String REMOVE_QUERY = "delete from exam_user where exam_id = ? and user_id = ?;";
 
-    private static final String FIND_USERS_QUERY = "SELECT * FROM \"User\" join \"ExamUser\" on \"UniversityID\" = \"UserId\" WHERE \"ExamId\" = ?;";
+    private static final String FIND_USERS_QUERY = "select * from \"user\" join exam_user on university_id = user_id WHERE exam_id = ?;";
 
-    private static final String FIND_EXAMS_QUERY = "SELECT * FROM \"Exam\" join \"ExamUser\" on \"Id\" = \"ExamId\" WHERE \"UserId\" = ?;";
+    private static final String FIND_EXAMS_QUERY = "select * from exam join exam_user on id = exam_id where user_id = ?;";
 
     @Inject
     ConnectionProvider connectionProvider;
@@ -58,14 +58,14 @@ public class BasicExamUserService implements ExamUserService {
             ResultSet resultSet = statement.executeQuery();
             List<Exam> exams = new ArrayList<>();
             while (resultSet.next()) {
-                exams.add((new Exam(resultSet.getLong("Id"),
-                        resultSet.getString("ExamName"),
-                        resultSet.getLong("DisciplineId"),
-                        resultSet.getLong("QuestionSetId"),
-                        resultSet.getInt("TotalPoints"),
-                        resultSet.getInt("Duration"),
-                        resultSet.getTimestamp("StartDate"),
-                        resultSet.getInt("NumberOfQuestions"))));
+                exams.add(new Exam(resultSet.getLong("id"),
+                        resultSet.getString("name"),
+                        resultSet.getLong("discipline_id"),
+                        resultSet.getLong("question_set_id"),
+                        resultSet.getInt("total_points"),
+                        resultSet.getInt("duration"),
+                        resultSet.getTimestamp("start_time"),
+                        resultSet.getInt("number_of_questions")));
             }
             statement.close();
             return exams;
@@ -75,7 +75,7 @@ public class BasicExamUserService implements ExamUserService {
     }
 
     @Override
-    public Collection<User> geeExamUsers(Long examId) {
+    public Collection<User> getExamUsers(Long examId) {
         try(Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(FIND_USERS_QUERY);
             statement.setLong(1, examId);
@@ -83,9 +83,9 @@ public class BasicExamUserService implements ExamUserService {
             List<User> users = new ArrayList<>();
             while (resultSet.next()) {
                 User user = new User();
-                user.setUniversityId(resultSet.getString("UniversityID"));
-                user.setEmail(resultSet.getString("Email"));
-                user.setRole(resultSet.getString("Role"));
+                user.setUniversityId(resultSet.getString("university_id"));
+                user.setEmail(resultSet.getString("email"));
+                user.setRole(resultSet.getString("role"));
                 users.add(user);
             }
             statement.close();

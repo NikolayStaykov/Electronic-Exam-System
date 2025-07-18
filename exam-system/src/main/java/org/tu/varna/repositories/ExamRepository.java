@@ -14,13 +14,14 @@ import java.util.Collection;
 import java.util.List;
 @ApplicationScoped
 public class ExamRepository implements Repository<Exam> {
-    private static final String CREATE_QUERY = "INSERT INTO \"Exam\"(\"DisciplineId\", \"QuestionSetId\", \"ExamName\", \"TotalPoints\", \"StartDate\", \"Duration\", \"NumberOfQuestions\") VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING \"Id\";";
+    private static final String CREATE_QUERY = "insert into exam (discipline_id, question_set_id, name, total_points, start_time, duration,number_of_questions)" +
+            " values (?, ?, ?, ?, ?, ?, ?) returning id;";
 
-    private static final String DELETE_QUERY = "DELETE FROM \"Exam\" WHERE \"Id\" = ?;";
+    private static final String DELETE_QUERY = "delete from exam where id = ?;";
 
-    private static final String FIND_QUERY = "SELECT * FROM \"Exam\" WHERE 1 = 1;";
+    private static final String FIND_QUERY = "select * from exam where 1 = 1";
 
-    private static final String UPDATE_QUERY = "UPDATE \"Exam\" SET  \"DisciplineId\" = ?, \"QuestionSetId\" = ?, \"ExamName\" = ?, \"TotalPoints\" = ?, \"StartDate\" = ?, \"Duration\" = ?, \"NumberOfQuestions\" = ? WHERE \"Id\" = ?;";
+    private static final String UPDATE_QUERY = "update exam set  discipline_id = ?, question_set_id = ?, name = ?, total_points = ?, start_time = ?, duration = ?, number_of_questions = ? where id = ?;";
 
     @Inject
     ConnectionProvider connectionProvider;
@@ -84,14 +85,14 @@ public class ExamRepository implements Repository<Exam> {
             ResultSet resultSet = preparedStatement.executeQuery();
             List<Exam> result = new ArrayList<>();
             while(resultSet.next()){
-                result.add(new Exam(resultSet.getLong("Id"),
-                        resultSet.getString("ExamName"),
-                        resultSet.getLong("DisciplineId"),
-                        resultSet.getLong("QuestionSetId"),
-                        resultSet.getInt("TotalPoints"),
-                        resultSet.getInt("Duration"),
-                        resultSet.getTimestamp("StartDate"),
-                        resultSet.getInt("NumberOfQuestions")));
+                result.add(new Exam(resultSet.getLong("id"),
+                        resultSet.getString("name"),
+                        resultSet.getLong("discipline_id"),
+                        resultSet.getLong("question_set_id"),
+                        resultSet.getInt("total_points"),
+                        resultSet.getInt("duration"),
+                        resultSet.getTimestamp("start_time"),
+                        resultSet.getInt("number_of_questions")));
             }
             resultSet.close();
             return result;
@@ -103,25 +104,25 @@ public class ExamRepository implements Repository<Exam> {
     private String formatQuery(Exam searchTemplate) {
         StringBuilder query = new StringBuilder(FIND_QUERY);
         if(searchTemplate.getId() != null) {
-            query.append(" AND \"Id\" = ?");
+            query.append(" AND id = ?");
         }
         if(searchTemplate.getDisciplineId() != null) {
-            query.append(" AND \"DisciplineId\" = ?");
+            query.append(" AND discipline_id = ?");
         }
         if(searchTemplate.getQuestionSetId() != null) {
-            query.append(" AND \"QuestionSetId\" = ?");
+            query.append(" AND question_set_id = ?");
         }
         if(searchTemplate.getExamName() != null) {
-            query.append(" AND \"ExamName\" = ?");
+            query.append(" AND name = ?");
         }
         if(searchTemplate.getTotalPoints() != null) {
-            query.append(" AND \"TotalPoints\" = ?");
+            query.append(" AND total_points = ?");
         }
         if(searchTemplate.getStartDate() != null) {
-            query.append(" AND \"StartDate\" = ?");
+            query.append(" AND start_time = ?");
         }
         if(searchTemplate.getDurationMinutes() != null) {
-            query.append(" AND \"Duration\" = ?");
+            query.append(" AND duration = ?");
         }
         return query.toString();
     }

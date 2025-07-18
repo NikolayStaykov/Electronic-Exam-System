@@ -5,10 +5,7 @@ import jakarta.inject.Inject;
 import org.tu.varna.entities.QuestionSet;
 import org.tu.varna.repositories.connectors.ConnectionProvider;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,13 +13,13 @@ import java.util.List;
 @ApplicationScoped
 public class QuestionSetRepository implements Repository<QuestionSet> {
 
-    private static final String CREATE_QUERY = "INSERT INTO \"QuestionSet\" (\"QuestionSetName\", \"DisciplineId\", \"ParentQuestionSetId\", \"Info\") VALUES (?, ?, ?, ?) Returning \"Id\";";
+    private static final String CREATE_QUERY = "insert into question_set (name,discipline_id,parent_question_set_id,info) values (?, ?, ?, ?) returning id;";
 
-    private static final String UPDATE_QUERY = "UPDATE \"QuestionSet\" SET \"QuestionSetName\" = ?, \"DisciplineId\" = ? \"ParentQuestionSetId\" = ?, \"Info\" = ? where \"Id\" = ?;";
+    private static final String UPDATE_QUERY = "update question_set SET name = ?, discipline_id = ?, parent_question_set_id = ?, info = ? where id = ?;";
 
-    private static final String DELETE_QUERY = "DELETE FROM \"QuestionSet\" WHERE \"Id\" = ?;";
+    private static final String DELETE_QUERY = "delete from question_set where id = ?;";
 
-    private static final String FIND_QUERY = "SELECT * FROM \"QuestionSet\" WHERE 1 = 1 ";
+    private static final String FIND_QUERY = "select * from question_set where 1 = 1 ";
 
     @Inject
     ConnectionProvider connectionProvider;
@@ -33,10 +30,14 @@ public class QuestionSetRepository implements Repository<QuestionSet> {
             PreparedStatement statement = connection.prepareStatement(CREATE_QUERY);
             statement.setString(1, object.getName());
             statement.setLong(2, object.getDisciplineId());
-            statement.setLong(3, object.getParentQuestionSetId());
+            if(object.getParentQuestionSetId() != null) {
+                statement.setLong(3, object.getParentQuestionSetId());
+            } else {
+                statement.setNull(3, Types.BIGINT);
+            }
             statement.setString(4, object.getInfo());
             statement.execute();
-            ResultSet resultSet = statement.getGeneratedKeys();
+            ResultSet resultSet = statement.getResultSet();
             resultSet.next();
             object.setId(resultSet.getLong(1));
             statement.close();
@@ -51,7 +52,11 @@ public class QuestionSetRepository implements Repository<QuestionSet> {
             PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
             statement.setString(1, object.getName());
             statement.setLong(2, object.getDisciplineId());
-            statement.setLong(3, object.getParentQuestionSetId());
+            if(object.getParentQuestionSetId() != null){
+                statement.setLong(3, object.getParentQuestionSetId());
+            } else {
+                statement.setNull(3, Types.BIGINT);
+            }
             statement.setString(4, object.getInfo());
             statement.setLong(5, object.getId());
             statement.execute();
@@ -84,11 +89,11 @@ public class QuestionSetRepository implements Repository<QuestionSet> {
 
             ResultSet resultSet = statement.executeQuery();
             while(resultSet.next()) {
-                questionSets.add(new QuestionSet(resultSet.getLong("Id"),
-                        resultSet.getString("QuestionSetName"),
-                        resultSet.getString("Info"),
-                        resultSet.getLong("DisciplineId"),
-                        resultSet.getLong("ParentQuestionSetId")));
+                questionSets.add(new QuestionSet(resultSet.getLong("id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("info"),
+                        resultSet.getLong("discipline_id"),
+                        resultSet.getLong("parent_question_set_id")));
             }
 
             return questionSets;
@@ -100,24 +105,24 @@ public class QuestionSetRepository implements Repository<QuestionSet> {
     private String formatQuery(QuestionSet searchTemplate){
         String query = FIND_QUERY;
         if(searchTemplate.getId() != null){
-            query += " AND \"Id\" = ?";
+            query += " AND id = ?";
         }
         if(searchTemplate.getParentQuestionSetId() != null){
-            query += " AND \"ParentQuestionSetId\" = ?";
+            query += " AND parent_question_set_id = ?";
         }
         if(searchTemplate.getInfo() != null){
-            query += " AND \"Info\" like ?";
+            query += " AND info like ?";
         }
         if(searchTemplate.getDisciplineId() != null){
-            query += " AND \"DisciplineId\" = ?";
+            query += " AND discipline_id = ?";
         }
         return query;
     }
 
     private void formatParameters(PreparedStatement statement, QuestionSet searchTemplate) throws SQLException{
         int parameterIndex = 1;
-        if(searchTemplate.getParentQuestionSetId() != null){
-            statement.setLong(parameterIndex, searchTemplate.getParentQuestionSetId());
+        if(searchTemplate.getId() != null){
+            statement.setLong(parameterIndex, searchTemplate.getId());
             parameterIndex++;
         }
         if(searchTemplate.getParentQuestionSetId() != null){

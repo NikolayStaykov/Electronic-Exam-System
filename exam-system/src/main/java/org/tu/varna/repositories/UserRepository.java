@@ -18,13 +18,13 @@ public class UserRepository implements Repository<User> {
     @Inject
     ConnectionProvider connectionProvider;
 
-    private static final String CREATE_QUERY = "Insert into \"User\" (UniversityID, Email, Role) values (?, ?, ?) Returning \"UniversityID\"";
+    private static final String CREATE_QUERY = "Insert into \"user\" (university_id, email, role) values (?, ?, ?) returning university_id";
 
-    private static final String UPDATE_QUERY = "Update \"User\" set Email = ?, Role = ? where UniversityID = ?";
+    private static final String UPDATE_QUERY = "Update \"user\" set email = ?, role = ? where university_id = ?";
 
-    private static final String DELETE_QUERY = "Delete from \"User\" where UniversityID = ?";
+    private static final String DELETE_QUERY = "Delete from \"user\" where university_id = ?";
 
-    private static final String FIND_QUERY = "Select * from \"User\" where 1 = 1";
+    private static final String FIND_QUERY = "Select * from \"user\" where 1 = 1";
 
 
     @Override
@@ -80,9 +80,9 @@ public class UserRepository implements Repository<User> {
             ArrayList<User> users = new ArrayList<>();
             while (resultSet.next()) {
                 User user = new User();
-                user.setUniversityId(resultSet.getString("UniversityID"));
-                user.setEmail(resultSet.getString("Email"));
-                user.setRole(resultSet.getString("Role"));
+                user.setUniversityId(resultSet.getString("university_id"));
+                user.setEmail(resultSet.getString("email"));
+                user.setRole(resultSet.getString("role"));
                 users.add(user);
             }
             statement.close();
@@ -95,16 +95,16 @@ public class UserRepository implements Repository<User> {
     private static String formatQuery(User template) {
         String query = FIND_QUERY;
         if(template.getDisciplines() != null && !template.getDisciplines().isEmpty()) {
-            query = query.replace("where 1 = 1", "join \"UserDiscipline\" on \"UserId\" = \"UniversityID\" where \"DisciplineId\" = ?");
+            query = query.replace("where 1 = 1", "join user_discipline on user_id = university_id where discipline_id = ?");
         }
         if(template.getUniversityId() != null) {
-            query += " and \"UniversityID\" = ?";
+            query += " and university_id = ?";
         }
         if(template.getEmail() != null) {
-            query += " and \"Email\" like ?";
+            query += " and email like ?";
         }
         if(template.getRole() != null) {
-            query += " and \"Role\" = ?";
+            query += " and role = ?";
         }
         query += ";";
         return query;

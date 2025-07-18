@@ -9,5 +9,5 @@ public interface ExamUserService {
     void addUserToExam(String userId, Long examId);
     void removeUserFromExam(String userId, Long examId);
     Collection<Exam> getUserExams(String userId);
-    Collection<User> geeExamUsers(Long examId);
+    Collection<User> getExamUsers(Long examId);
 }

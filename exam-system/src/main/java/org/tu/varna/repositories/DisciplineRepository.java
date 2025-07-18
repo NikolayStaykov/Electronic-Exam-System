@@ -12,13 +12,13 @@ import java.util.Collection;
 @ApplicationScoped
 public class DisciplineRepository implements Repository<Discipline> {
 
-    private static final String CREATE_QUERY = "insert into \"Discipline\" (\"DisciplineName\") Values(?) Returning \"Id\";";
+    private static final String CREATE_QUERY = "insert into discipline (name) values(?) returning id;";
 
-    private static final String UPDATE_QUERY = "update \"Discipline\" set \"DisciplineName\" = ? where \"Id\" = ?";
+    private static final String UPDATE_QUERY = "update discipline set name = ? where id = ?";
 
-    private static final String DELETE_QUERY = "delete from \"Discipline\" where \"Id\" = ?";
+    private static final String DELETE_QUERY = "delete from discipline where id = ?";
 
-    private static final String FIND_QUERY = "select * from \"Discipline\" where 1 = 1";
+    private static final String FIND_QUERY = "select * from discipline where 1 = 1";
 
     @Inject
     ConnectionProvider connectionProvider;
@@ -74,8 +74,8 @@ public class DisciplineRepository implements Repository<Discipline> {
             ArrayList<Discipline> disciplines = new ArrayList<>();
             while (resultSet.next()) {
                 disciplines.add(new Discipline(
-                        resultSet.getLong("Id"),
-                        resultSet.getString("DisciplineName")));
+                        resultSet.getLong("id"),
+                        resultSet.getString("name")));
             }
             statement.close();
             return disciplines;
@@ -87,13 +87,13 @@ public class DisciplineRepository implements Repository<Discipline> {
     private static String formatQuery(Discipline template) {
         String query = FIND_QUERY;
         if(template.getUsers() != null && !template.getUsers().isEmpty()) {
-            query = query.replace("where 1 = 1", "join \"UserDiscipline\" on \"DisciplineId\" = \"Id\" where \"UserId\" = ?");
+            query = query.replace("where 1 = 1", "join user_discipline on discipline_id = id where user_id = ?");
         }
         if(template.getDisciplineId() != null) {
-            query += " and \"Id\" = ?";
+            query += " and id = ?";
         }
         if(template.getDisciplineName() != null) {
-            query += " and \"DisciplineName\" like ?";
+            query += " and name like ?";
         }
         query += ";";
         return query;

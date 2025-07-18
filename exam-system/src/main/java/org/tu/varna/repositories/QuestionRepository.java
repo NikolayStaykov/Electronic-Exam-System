@@ -14,15 +14,15 @@ import java.util.Collection;
 @ApplicationScoped
 public class QuestionRepository implements Repository<Question>{
 
-    private static final String CREATE_QUERY = "insert into \"Question\" (\"QuestionText\", \"QuestionType\", \"DisciplineId\", \"DefaultGrade\", \"Penalty\") Values(?, ?, ?, ?, ?) Returning \"Id\";";
+    private static final String CREATE_QUERY = "insert into question (text, type, discipline_id,default_grade,penalty) Values(?, ?, ?, ?, ?) returning id;";
 
-    private static final String UPDATE_QUERY = "update \"Question\" set \"QuestionText\" = ?, \"QuestionType\" = ?, \"DisciplineId\" = ?, \"DefaultGrade\" = ?, \"Penalty\" = ? where \"Id\" = ?";
+    private static final String UPDATE_QUERY = "update question set text = ?, type = ?, discipline_id = ?, default_grade = ?, penalty = ? where id = ?";
 
-    private static final String DELETE_QUERY = "delete from \"Question\" where \"Id\" = ?";
+    private static final String DELETE_QUERY = "delete from question where id = ?";
 
-    private static final String FIND_QUERY = "select * from \"Question\" where 1 = 1";
+    private static final String FIND_QUERY = "select * from question where 1 = 1";
 
-    private static final String FIND_QUERY_QUESTION_SET = "select * from \"Question\" join \"QuestionSetQuestion\" on \"QuestionId\" = \"Id\" where \"QuestionSetId\" = ?";
+    private static final String FIND_QUERY_QUESTION_SET = "select * from question join question_set_question on question_id = id where question_set_id = ?";
 
     @Inject
     ConnectionProvider connectionProvider;
@@ -52,7 +52,9 @@ public class QuestionRepository implements Repository<Question>{
             statement.setString(1, object.getQuestionText());
             statement.setString(2, object.getQuestionType().toString());
             statement.setLong(3, object.getDiscipline().getDisciplineId());
-            statement.setLong(4, object.getId());
+            statement.setDouble(4,object.getDefaultGrade());
+            statement.setDouble(5,object.getPenalty());
+            statement.setLong(6, object.getId());
             statement.execute();
             statement.close();
         } catch (SQLException e) {
@@ -90,16 +92,16 @@ public class QuestionRepository implements Repository<Question>{
     private static String formatQuery(Question template) {
         String query = FIND_QUERY;
         if(template.getId() != null) {
-            query += " and \"Id\" = ?";
+            query += " and id = ?";
         }
         if(template.getQuestionText() != null) {
-            query += " and \"QuestionText\" like ?";
+            query += " and text like ?";
         }
         if(template.getDiscipline() != null) {
-            query += " and \"DisciplineId\" = ?";
+            query += " and discipline_id = ?";
         }
         if(template.getQuestionType() != null) {
-            query += " and \"QuestionType\" = ?";
+            query += " and type = ?";
         }
         query += ";";
         return query;
@@ -141,13 +143,13 @@ public class QuestionRepository implements Repository<Question>{
         ArrayList<Question> questions = new ArrayList<>();
         while (resultSet.next()) {
             questions.add(new Question(
-                    resultSet.getLong("Id"),
-                    resultSet.getString("QuestionText"),
-                    QuestionType.valueOf(resultSet.getString("QuestionType")),
-                    new Discipline(resultSet.getLong("DisciplineId"),null),
+                    resultSet.getLong("id"),
+                    resultSet.getString("text"),
+                    QuestionType.valueOf(resultSet.getString("type")),
+                    new Discipline(resultSet.getLong("discipline_id"),null),
                     null,
-                    resultSet.getDouble("DefaultGrade"),
-                    resultSet.getDouble("Penalty")));
+                    resultSet.getDouble("default_grade"),
+                    resultSet.getDouble("penalty")));
         }
         return questions;
     }
